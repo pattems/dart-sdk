@@ -11,6 +11,7 @@
 #include <fcntl.h>
 
 #include "bin/file.h"
+#include "platform/largefile.h"
 #include "platform/signal_blocker.h"
 #include "platform/text_buffer.h"
 

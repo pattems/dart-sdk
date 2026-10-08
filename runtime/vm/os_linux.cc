@@ -22,6 +22,7 @@
 #include <time.h>          // NOLINT
 #include <unistd.h>        // NOLINT
 
+#include "platform/largefile.h"
 #include "platform/memory_sanitizer.h"
 #include "platform/signal_blocker.h"
 #include "platform/thread_sanitizer.h"

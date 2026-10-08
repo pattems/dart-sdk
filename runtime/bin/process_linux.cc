@@ -24,6 +24,7 @@
 #include "bin/lockers.h"
 #include "bin/reference_counting.h"
 #include "bin/thread.h"
+#include "platform/largefile.h"
 #include "platform/syslog.h"
 
 #include "platform/signal_blocker.h"
