@@ -20,6 +20,7 @@
 #include "bin/builtin.h"
 #include "bin/fdutils.h"
 #include "bin/namespace.h"
+#include "platform/largefile.h"
 #include "platform/memory_sanitizer.h"
 #include "platform/signal_blocker.h"
 #include "platform/syslog.h"

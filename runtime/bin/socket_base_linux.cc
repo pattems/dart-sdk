@@ -21,6 +21,7 @@
 #include "bin/file.h"
 #include "bin/socket_base_linux.h"
 #include "bin/thread.h"
+#include "platform/largefile.h"
 #include "platform/memory_sanitizer.h"
 #include "platform/signal_blocker.h"
 

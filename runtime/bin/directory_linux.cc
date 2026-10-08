@@ -22,6 +22,7 @@
 #include "bin/file.h"
 #include "bin/namespace.h"
 #include "bin/platform.h"
+#include "platform/largefile.h"
 #include "platform/memory_sanitizer.h"
 #include "platform/signal_blocker.h"
 
