@@ -28,6 +28,9 @@
 #include "bin/file.h"
 #include "bin/lockers.h"
 #include "bin/reference_counting.h"
+#if defined(__FreeBSD__)
+#include "bin/process_signal_map.h"
+#endif
 #include "bin/thread.h"
 #include "platform/largefile.h"
 #include "platform/syslog.h"
@@ -1000,8 +1003,18 @@ int Process::Exec(Namespace* namespc,
   return -1;
 }
 
+// ProcessSignal ids are Linux signal numbers; FreeBSD numbers some signals
+// differently (e.g. SIGUSR1 is 30, while 10 is SIGBUS).
+static int OsSignal(intptr_t signal) {
+#if defined(__FreeBSD__)
+  return SignalMap(signal);
+#else
+  return signal;
+#endif
+}
+
 bool Process::Kill(intptr_t id, int signal) {
-  return (TEMP_FAILURE_RETRY(kill(id, signal)) != -1);
+  return (TEMP_FAILURE_RETRY(kill(id, OsSignal(signal))) != -1);
 }
 
 void Process::TerminateExitCodeHandler() {
@@ -1084,6 +1097,10 @@ static void SignalHandler(int signal) {
 }
 
 intptr_t Process::SetSignalHandler(intptr_t signal) {
+  signal = OsSignal(signal);
+  if (signal == -1) {
+    return -1;
+  }
   bool found = false;
   for (int i = 0; i < kSignalsCount; i++) {
     if (kSignals[i] == signal) {
@@ -1135,6 +1152,10 @@ intptr_t Process::SetSignalHandler(intptr_t signal) {
 }
 
 void Process::ClearSignalHandler(intptr_t signal, Dart_Port port) {
+  signal = OsSignal(signal);
+  if (signal == -1) {
+    return;
+  }
   ThreadSignalBlocker blocker(kSignalsCount, kSignals);
   MutexLocker lock(signal_mutex);
   SignalInfo* handler = signal_handlers;
