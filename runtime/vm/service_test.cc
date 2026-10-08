@@ -826,7 +826,10 @@ ISOLATE_UNIT_TEST_CASE(Service_ReadNativeMemory_InvalidAddress) {
   EXPECT_EQ(MessageHandler::kOK, handler.HandleNextMessage());
 
   EXPECT_SUBSTRING("\"code\":1004", handler.msg());
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID)
+#if defined(__FreeBSD__)
+  // Without /proc/self/mem, the read fails with EFAULT rather than EIO.
+  EXPECT_SUBSTRING("Bad address", handler.msg());
+#elif defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID)
   EXPECT_SUBSTRING("Input\\/output error", handler.msg());
 #elif defined(DART_HOST_OS_WINDOWS)
   EXPECT_SUBSTRING("error 299", handler.msg());

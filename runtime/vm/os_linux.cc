@@ -588,6 +588,38 @@ bool OS::SafeReadMemory(void* address,
                         size_t size_in_bytes,
                         const char** error) {
   ThreadSignalBlocker tsb(SIGPROF);
+#if defined(__FreeBSD__)
+  // There is no /proc/self/mem without procfs. write(2) fails with EFAULT
+  // instead of faulting when the source is not readable, so copy the memory
+  // through a pipe.
+  int fds[2];
+  if (pipe2(fds, O_CLOEXEC) != 0) {
+    *error = strerror(errno);
+    return false;
+  }
+  const size_t kChunkSize = 4 * KB;
+  const uint8_t* source = reinterpret_cast<const uint8_t*>(address);
+  size_t copied = 0;
+  while (copied < size_in_bytes) {
+    const size_t chunk = Utils::Minimum(size_in_bytes - copied, kChunkSize);
+    const ssize_t written = TEMP_FAILURE_RETRY_NO_SIGNAL_BLOCKER(
+        write(fds[1], source + copied, chunk));
+    if (written <= 0) {
+      *error = strerror(errno);
+      break;
+    }
+    const ssize_t read_back = TEMP_FAILURE_RETRY_NO_SIGNAL_BLOCKER(
+        read(fds[0], buffer + copied, written));
+    if (read_back != written) {
+      *error = strerror(errno);
+      break;
+    }
+    copied += read_back;
+  }
+  close(fds[0]);
+  close(fds[1]);
+  return copied == size_in_bytes;
+#else
   int fd = TEMP_FAILURE_RETRY_NO_SIGNAL_BLOCKER(
       open("/proc/self/mem", O_RDONLY | O_CLOEXEC));
   if (fd < 0) {
@@ -601,6 +633,7 @@ bool OS::SafeReadMemory(void* address,
   }
   close(fd);
   return bytes_read == static_cast<ssize_t>(size_in_bytes);
+#endif  // defined(__FreeBSD__)
 }
 
 void OS::Sleep(int64_t millis) {
