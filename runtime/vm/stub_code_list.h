@@ -18,9 +18,11 @@ namespace dart {
   V(LazySpecializeTypeTest)                                                    \
   V(LazySpecializeNullableTypeTest)
 
-#if (defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_ANDROID)) &&      \
+#if (defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD) ||       \
+     defined(DART_TARGET_OS_ANDROID)) &&                                       \
     (defined(TARGET_ARCH_X64) || defined(TARGET_ARCH_ARM64))
-// Currently we support probe points only Linux and Android (X64 and ARM64).
+// Currently we support probe points only on Linux, FreeBSD and Android (X64
+// and ARM64).
 #define DART_TARGET_SUPPORTS_PROBE_POINTS 1
 #endif
 

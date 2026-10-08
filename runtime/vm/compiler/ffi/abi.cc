@@ -53,6 +53,9 @@ static_assert(offsetof(AbiAlignmentUint64, i) == 8,
 #define DART_TARGET_OS_NAME Fuchsia
 #elif defined(DART_TARGET_OS_LINUX)
 #define DART_TARGET_OS_NAME Linux
+#elif defined(DART_TARGET_OS_FREEBSD)
+// FreeBSD uses the Linux calling conventions, and dart:ffi has no FreeBSD Abi.
+#define DART_TARGET_OS_NAME Linux
 #elif defined(DART_TARGET_OS_MACOS)
 #if DART_TARGET_OS_MACOS_IOS
 #define DART_TARGET_OS_NAME IOS

@@ -22,8 +22,9 @@
 #include "vm/symbols.h"
 #include "vm/zone_text_buffer.h"
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
 #include <dlfcn.h>
 #endif
 
@@ -213,8 +214,9 @@ DEFINE_NATIVE_ENTRY(Ffi_dl_open, 0, 1) {
 }
 
 DEFINE_NATIVE_ENTRY(Ffi_dl_processLibrary, 0, 0) {
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   return DynamicLibrary::New(RTLD_DEFAULT, &DlsymDynamicLibrary,
                              &Utils::UnloadDynamicLibrary);
 #else

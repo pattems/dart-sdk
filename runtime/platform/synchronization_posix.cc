@@ -5,8 +5,9 @@
 #include "platform/globals.h"  // NOLINT
 
 #if !defined(DART_USE_ABSL) &&                                                 \
-    (defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||           \
-     defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID))
+    (defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||               \
+     defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||           \
+     defined(DART_HOST_OS_ANDROID))
 
 #include "platform/synchronization.h"
 
@@ -166,7 +167,6 @@ void ConditionVariable::NotifyAll() {
 
 }  // namespace dart
 
-#endif  // !defined(DART_USE_ABSL) && (defined(DART_HOST_OS_LINUX) ||          \
-        //                             defined(DART_HOST_OS_FUCHSIA) ||        \
-        //                             defined(DART_HOST_OS_MACOS) ||          \
-        //                             defined(DART_HOST_OS_ANDROID))
+#endif  // !defined(DART_USE_ABSL) && (defined(DART_HOST_OS_LINUX) ||
+        // defined(DART_HOST_OS_BSD) || defined(DART_HOST_OS_FUCHSIA) ||
+        // defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID))

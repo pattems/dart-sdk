@@ -4,7 +4,7 @@
 
 #include "platform/globals.h"
 #if defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||            \
-    defined(DART_HOST_OS_MACOS)
+    defined(DART_HOST_OS_BSD) || defined(DART_HOST_OS_MACOS)
 
 #include "bin/virtual_memory.h"
 
@@ -134,5 +134,5 @@ void VirtualMemory::Protect(void* address, intptr_t size, Protection mode) {
 }  // namespace bin
 }  // namespace dart
 
-#endif  // defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||     \
-        // defined(DART_HOST_OS_MACOS)
+#endif  // defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||
+        // defined(DART_HOST_OS_BSD) || defined(DART_HOST_OS_MACOS)

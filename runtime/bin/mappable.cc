@@ -16,7 +16,8 @@ Mappable* Mappable::FromPath(const char* path) {
                                      /*executable=*/true));
 }
 
-#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX) ||            \
+    defined(DART_HOST_OS_BSD)
 Mappable* Mappable::FromFD(int fd) {
   return new FileMappable(File::OpenFD(fd));
 }

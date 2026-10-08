@@ -310,7 +310,7 @@ static Dart_Isolate CreateIsolateGroupAndSetup(const char* script_uri,
     *error = nullptr;
   }
 
-#if defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD)
   // This would also be true in Linux, except that Google3 overrides the default
   // ELF interpreter to one that apparently doesn't create proper mappings.
   flags->snapshot_is_dontneed_safe = false;
@@ -856,7 +856,7 @@ class DartDev {
     // the specified application script.
     Dart_IsolateFlags flags;
     Dart_IsolateFlagsInitialize(&flags);
-#if defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD)
     // This would also be true in Linux, except that Google3 overrides the
     // default ELF interpreter to one that apparently doesn't create proper
     // mappings.

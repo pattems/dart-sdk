@@ -73,7 +73,7 @@ static bool kernel_isolate_is_running = false;
 static Dart_Isolate main_isolate = nullptr;
 
 #if defined(DART_PRECOMPILED_RUNTIME) && defined(DART_CLI_RUNTIME) &&          \
-    defined(DART_HOST_OS_LINUX)
+    (defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD))
 static CStringUniquePtr BuildCliSnapshotPath(const char* executable_path,
                                              const char* executable_name) {
   const char* executable_basename = strrchr(executable_name, '/');
@@ -963,7 +963,7 @@ static Dart_Isolate CreateIsolateGroupAndSetup(const char* script_uri,
   }
 
   bool dontneed_safe = true;
-#if defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD)
   // This would also be true in Linux, except that Google3 overrides the default
   // ELF interpreter to one that apparently doesn't create proper mappings.
   dontneed_safe = false;
@@ -1107,7 +1107,7 @@ void RunMainIsolate(const char* script_name,
   Dart_IsolateFlagsInitialize(&flags);
   flags.is_system_isolate = Options::mark_main_isolate_as_system_isolate();
   bool dontneed_safe = true;
-#if defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD)
   // This would also be true in Linux, except that Google3 overrides the default
   // ELF interpreter to one that apparently doesn't create proper mappings.
   dontneed_safe = false;
@@ -1343,7 +1343,8 @@ void main(int argc, char** argv) {
       prepare_app_snapshot();
     }
 
-#if defined(DART_CLI_RUNTIME) && defined(DART_HOST_OS_LINUX)
+#if defined(DART_CLI_RUNTIME) &&                                               \
+    (defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD))
     if (app_snapshot == nullptr) {
       cli_snapshot_path = ResolveCliSnapshotPath(executable_path, argv[0]);
       script_name = cli_snapshot_path.get();
@@ -1351,7 +1352,8 @@ void main(int argc, char** argv) {
         prepare_app_snapshot();
       }
     }
-#endif  // defined(DART_CLI_RUNTIME) && defined(DART_HOST_OS_LINUX)
+#endif  // defined(DART_CLI_RUNTIME) && (defined(DART_HOST_OS_LINUX) ||
+        // defined(DART_HOST_OS_BSD))
   }
 #endif
 

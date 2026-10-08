@@ -6273,7 +6273,8 @@ static void ReadNativeMemoryHelper(JSONStream* js,
 
   const char* read_error = nullptr;
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_ANDROID)
   bool ok = OS::SafeReadMemory(reinterpret_cast<void*>(address), buffer.get(),
                                size, &read_error);
 #elif defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_IOS)

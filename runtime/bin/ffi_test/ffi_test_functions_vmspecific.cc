@@ -205,7 +205,7 @@ struct CallbackTestData {
   void (*callback)();
 };
 
-#if defined(DART_TARGET_OS_LINUX)
+#if defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD)
 
 thread_local sigjmp_buf buf;
 void CallbackTestSignalHandler(int) {
@@ -319,7 +319,7 @@ DART_EXPORT intptr_t TestLeafCallApi(void (*fn)()) {
 #endif
 }
 
-#endif  // defined(DART_TARGET_OS_LINUX)
+#endif  // defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD)
 
 // Restore default SIGPIPE handler, which is only needed on mac
 // since that is the only platform we explicitly ignore it.
@@ -1393,8 +1393,8 @@ DART_EXPORT void ReleaseAddr(intptr_t addr) {
 // Helper for the regression test for b/216834909
 ////////////////////////////////////////////////////////////////////////////////
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID) ||            \
-    defined(DART_HOST_OS_MACOS)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_MACOS)
 static bool Regress216834909_hang_at_exit = true;
 
 static void Regress216834909_AtExit() {

@@ -17,7 +17,8 @@
 #include "vm/dart_api_state.h"
 #include "vm/dart_entry.h"
 #include "vm/debugger.h"
-#if defined(DART_PRECOMPILED_RUNTIME) && defined(DART_TARGET_OS_LINUX)
+#if defined(DART_PRECOMPILED_RUNTIME) &&                                       \
+    (defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD))
 #include "vm/elf.h"
 #endif
 #include "vm/ffi_callback_metadata.h"
@@ -306,7 +307,8 @@ char* Dart::DartInit(const Dart_InitializeParams* params) {
   start_time_micros_ = OS::GetCurrentMonotonicMicros();
   VirtualMemory::Init();
 
-#if defined(DART_PRECOMPILED_RUNTIME) && defined(DART_TARGET_OS_LINUX)
+#if defined(DART_PRECOMPILED_RUNTIME) &&                                       \
+    (defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD))
   if (VirtualMemory::PageSize() > kElfPageSize) {
     return Utils::SCreate(
         "Incompatible page size for AOT compiled ELF: expected at most %" Pd
@@ -987,8 +989,10 @@ char* Dart::FeaturesString(IsolateGroup* isolate_group, Snapshot::Kind kind) {
 #else
     buffer.AddString(" macos");
 #endif
-#elif defined(DART_TARGET_OS_LINUX)
+#elif defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD)
     buffer.AddString(" linux");
+#elif defined(DART_TARGET_OS_FREEBSD)
+    buffer.AddString(" freebsd");
 #elif defined(DART_TARGET_OS_WINDOWS)
     buffer.AddString(" windows");
 #else

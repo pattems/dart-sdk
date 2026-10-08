@@ -7,8 +7,9 @@
 
 #include "platform/assert.h"
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||            \
-    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||            \
+    defined(DART_HOST_OS_ANDROID)
 #include <pthread.h>
 #endif
 
@@ -16,8 +17,9 @@ namespace dart {
 
 namespace platform {
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||            \
-    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||            \
+    defined(DART_HOST_OS_ANDROID)
 typedef pthread_t ThreadId;
 #elif defined(DART_HOST_OS_WINDOWS)
 typedef DWORD ThreadId;
@@ -28,8 +30,9 @@ typedef DWORD ThreadId;
 static constexpr ThreadId kInvalidThreadId = static_cast<ThreadId>(0);
 
 inline ThreadId GetCurrentThreadId() {
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||            \
-    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||            \
+    defined(DART_HOST_OS_ANDROID)
   return pthread_self();
 #elif defined(DART_HOST_OS_WINDOWS)
   return ::GetCurrentThreadId();
@@ -39,8 +42,9 @@ inline ThreadId GetCurrentThreadId() {
 }
 
 inline bool AreSameThreads(ThreadId a, ThreadId b) {
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||            \
-    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||            \
+    defined(DART_HOST_OS_ANDROID)
   return pthread_equal(a, b) != 0;
 #elif defined(DART_HOST_OS_WINDOWS)
   return a == b;
@@ -88,8 +92,9 @@ class ThreadBoundResource {
 
 }  // namespace platform
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_FUCHSIA) ||            \
-    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_MACOS) ||            \
+    defined(DART_HOST_OS_ANDROID)
 
 #define VALIDATE_PTHREAD_RESULT(result)                                        \
   if (result != 0) {                                                           \

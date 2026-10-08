@@ -422,7 +422,8 @@ MappedMemory* LoadedElf::MapFilePiece(uword file_start,
 using namespace dart::bin::elf;  // NOLINT
 using Mappable = dart::bin::Mappable;
 
-#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX) ||            \
+    defined(DART_HOST_OS_BSD)
 DART_EXPORT Dart_LoadedElf* Dart_LoadELF_Fd(int fd,
                                             uint64_t file_offset,
                                             const char** error,

@@ -4,7 +4,7 @@
 
 #include "bin/exe_utils.h"
 
-#if defined(__FreeBSD__)
+#if defined(DART_HOST_OS_FREEBSD)
 #include <dlfcn.h>
 #endif
 
@@ -146,7 +146,7 @@ void EXEUtils::LoadDartProfilerSymbols(const char* argv0) {
   int64_t size = file->Length();
   MappedMemory* mapping = file->Map(File::kReadOnly, 0, size);
   const char* dso_name = argv0;
-#if defined(__FreeBSD__)
+#if defined(DART_HOST_OS_FREEBSD)
   // The symbols are looked up by the name dladdr() reports for the
   // executable. That is argv[0] with glibc, but FreeBSD reports the resolved
   // path, so register them under that name.

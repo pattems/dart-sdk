@@ -16,7 +16,8 @@ namespace bin {
 class Mappable {
  public:
   static Mappable* FromPath(const char* path);
-#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX)
+#if defined(DART_HOST_OS_FUCHSIA) || defined(DART_HOST_OS_LINUX) ||            \
+    defined(DART_HOST_OS_BSD)
   static Mappable* FromFD(int fd);
 #endif
   static Mappable* FromMemory(const uint8_t* memory, size_t size);

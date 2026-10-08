@@ -16,8 +16,9 @@
 #include <stdio.h>
 #include <tchar.h>
 #endif
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
 #include <dlfcn.h>
 #endif
 
@@ -148,8 +149,9 @@ void* NativeAssets::DlopenSystem(const char* path, char** error) {
 }
 
 void* NativeAssets::DlopenProcess(char** error) {
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   return RTLD_DEFAULT;
 #else
   return kWindowsDynamicLibraryProcessPtr;

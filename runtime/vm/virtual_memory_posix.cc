@@ -4,7 +4,7 @@
 
 #include "vm/globals.h"
 #if defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||            \
-    defined(DART_HOST_OS_MACOS)
+    defined(DART_HOST_OS_BSD) || defined(DART_HOST_OS_MACOS)
 
 #include "vm/virtual_memory.h"
 
@@ -17,6 +17,11 @@
 
 #if defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX)
 #include <sys/prctl.h>
+#endif
+
+#if defined(DART_HOST_OS_FREEBSD)
+// FreeBSD removed MAP_NORESERVE; its mappings never reserve swap up front.
+#define MAP_NORESERVE 0
 #endif
 
 #if defined(DART_HOST_OS_MACOS)
@@ -59,7 +64,7 @@ namespace dart {
 
 DECLARE_FLAG(bool, write_protect_code);
 
-#if defined(DART_TARGET_OS_LINUX)
+#if defined(DART_TARGET_OS_LINUX) || defined(DART_TARGET_OS_FREEBSD)
 DECLARE_FLAG(bool, generate_perf_events_symbols);
 DECLARE_FLAG(bool, generate_perf_jitdump);
 #endif
@@ -871,5 +876,5 @@ bool VirtualMemory::DuplicateRX(VirtualMemory* target) {
 
 }  // namespace dart
 
-#endif  // defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||     \
-        // defined(DART_HOST_OS_MACOS)
+#endif  // defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX) ||
+        // defined(DART_HOST_OS_BSD) || defined(DART_HOST_OS_MACOS)

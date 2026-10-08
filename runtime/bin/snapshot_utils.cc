@@ -27,8 +27,8 @@
 #define LOG_SECTION_BOUNDARIES false
 
 #if !defined(DART_INCLUDE_SIMULATOR)
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID) ||            \
-    defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
 #define NATIVE_SHARED_OBJECT_FORMAT_ELF 1
 #elif defined(DART_HOST_OS_MACOS)
 #define NATIVE_SHARED_OBJECT_FORMAT_MACHO 1
@@ -189,7 +189,8 @@ static AppSnapshot* TryReadAppSnapshotDynamicLibrary(
   *error = Utils::StrDup("running on a simulated architecture");
   return nullptr;
 #else
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS)
   // On Linux and OSX, resolve the script path before passing into dlopen()
   // since dlopen will not search the filesystem for paths like 'libtest.so'.
   const size_t kPathBufSize = PATH_MAX + 1;

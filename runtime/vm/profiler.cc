@@ -372,8 +372,8 @@ void Profiler::DumpStackTrace(void* context) {
     DumpStackTrace(/*for_crash=*/true);
     return;
   }
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
   ucontext_t* ucontext = reinterpret_cast<ucontext_t*>(context);
   mcontext_t mcontext = ucontext->uc_mcontext;
   uword pc = SignalHandler::GetProgramCounter(mcontext);
@@ -1271,7 +1271,8 @@ void ReleaseToCurrentBlock(Isolate* isolate) {
   // special treatment for thread_suspend/resume.
   SampleBlock* block = isolate->current_sample_block();
   isolate->exchange_current_sample_block(block);
-#elif defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID)
+#elif defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||              \
+    defined(DART_HOST_OS_ANDROID)
   // The sample is collected by a signal handler on the same thread being
   // sampled.
 #else

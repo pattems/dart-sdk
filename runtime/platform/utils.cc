@@ -7,8 +7,8 @@
 #include "platform/allocation.h"
 #include "platform/globals.h"
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID)
 #include <dlfcn.h>
 #include <libgen.h>
 #elif defined(DART_HOST_OS_FUCHSIA)
@@ -273,8 +273,9 @@ char* Utils::VSCreate(const char* format, va_list args) {
 static void GetLastErrorAsString(char** error) {
   if (error == nullptr) return;  // Nothing to do.
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   const char* status = dlerror();
   *error = status != nullptr ? strdup(status) : nullptr;
 #elif defined(DART_HOST_OS_WINDOWS)
@@ -307,8 +308,9 @@ void* Utils::LoadDynamicLibrary(const char* library_path,
                                 char** error) {
   void* handle = nullptr;
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   handle = dlopen(library_path, RTLD_LAZY);
 #if defined(DART_HOST_OS_FUCHSIA)
   if (handle == nullptr) {
@@ -367,8 +369,9 @@ void* Utils::LoadDynamicLibrary(const char* library_path,
 void* Utils::ResolveSymbolInDynamicLibrary(void* library_handle,
                                            const char* symbol,
                                            char** error) {
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   dlerror();  // Clear any errors.
   void* result = dlsym(library_handle, symbol);
   // Note: nullptr might be a valid return from dlsym. Must call dlerror
@@ -399,8 +402,9 @@ void Utils::UnloadDynamicLibrary(void* library_handle, char** error) {
 
   bool ok = false;
 
-#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_MACOS) ||              \
-    defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_FUCHSIA)
+#if defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_BSD) ||                \
+    defined(DART_HOST_OS_MACOS) || defined(DART_HOST_OS_ANDROID) ||            \
+    defined(DART_HOST_OS_FUCHSIA)
   void* const executable_handle = dlopen(nullptr, RTLD_LAZY);
   const bool is_executable = library_handle == executable_handle;
   if (executable_handle != nullptr) {
