@@ -82,10 +82,14 @@ void testFailure() {
       Expect.contains('symbol_is_not_defined_29903211', e.message);
       Expect.contains('symbol not found', e.message);
     } else {
-      Expect.contains(
-        'undefined symbol: symbol_is_not_defined_29903211',
-        e.message,
-      );
+      // glibc and bionic say "undefined symbol: NAME", musl "Symbol not
+      // found: NAME", FreeBSD's rtld "Undefined symbol \"NAME\"".
+      Expect.contains('symbol_is_not_defined_29903211', e.message);
+      Expect.containsAny([
+        'undefined symbol',
+        'Undefined symbol',
+        'Symbol not found',
+      ], e.message);
     }
   }
 }
