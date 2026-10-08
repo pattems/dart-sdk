@@ -599,7 +599,7 @@ class DescriptorInfoMultipleMixin : public DI {
 #elif defined(DART_HOST_OS_LINUX) || defined(DART_HOST_OS_ANDROID)
 #include "bin/eventhandler_linux.h"
 #elif defined(DART_HOST_OS_MACOS)
-#include "bin/eventhandler_macos.h"
+#include "bin/eventhandler_kqueue.h"
 #elif defined(DART_HOST_OS_WINDOWS)
 #include "bin/eventhandler_win.h"
 #else

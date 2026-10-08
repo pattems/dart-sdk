@@ -6,7 +6,7 @@
 #if defined(DART_HOST_OS_MACOS)
 
 #include "bin/eventhandler.h"
-#include "bin/eventhandler_macos.h"
+#include "bin/eventhandler_kqueue.h"
 
 #include <errno.h>      // NOLINT
 #include <fcntl.h>      // NOLINT
