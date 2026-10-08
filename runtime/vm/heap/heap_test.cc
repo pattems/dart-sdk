@@ -1186,7 +1186,9 @@ ISOLATE_UNIT_TEST_CASE(FinalizerEntry_Generations) {
   FinalizerEntry_Generations(kOld, kImm, false, false, false);
 }
 
-#if !defined(PRODUCT) && defined(DART_HOST_OS_LINUX)
+// FreeBSD keeps MADV_DONTNEED pages resident until there is memory
+// pressure, so RSS doesn't drop right after the sweep.
+#if !defined(PRODUCT) && defined(DART_HOST_OS_LINUX) && !defined(__FreeBSD__)
 ISOLATE_UNIT_TEST_CASE(SweepDontNeed) {
   auto gc_with_fragmentation = [&] {
     HANDLESCOPE(thread);
