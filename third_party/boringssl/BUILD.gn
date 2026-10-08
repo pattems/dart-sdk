@@ -32,7 +32,11 @@ config("internal_config") {
     "OPENSSL_SMALL",
     "OPENSSL_STATIC_ARMCAP",
   ]
-  if (is_posix) {
+
+  # Like BoringSSL's CMake build, don't set this on FreeBSD, where it hides
+  # interfaces BoringSSL uses (getentropy, MAP_ANONYMOUS, INHERIT_ZERO). See
+  # https://crbug.com/boringssl/471.
+  if (is_posix && current_os != "freebsd") {
     defines += [ "_XOPEN_SOURCE=700" ]
   }
 }
