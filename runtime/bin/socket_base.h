@@ -16,6 +16,8 @@
 // The GLIBC, uClibc[-NG] and Musl LibC libraries should not do so.
 #define INET_PTON_FLAWED
 #endif
+#elif defined(DART_HOST_OS_BSD)
+#include "bin/socket_base_bsd.h"
 #elif defined(DART_HOST_OS_MACOS)
 #include "bin/socket_base_macos.h"
 // MacOS inet_pton allows leading zeros in IPv4 addresses.
