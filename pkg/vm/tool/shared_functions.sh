@@ -7,7 +7,7 @@
 function host_arch() {
   # Use uname to determine the host architecture.
   case `uname -m` in
-    x86_64)
+    x86_64 | amd64)
     echo "X64"
     ;;
     aarch64 | arm64 | armv8*)
