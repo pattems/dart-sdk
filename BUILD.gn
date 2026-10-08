@@ -51,7 +51,7 @@ group("runtime") {
       "utils/dtd:dtd_aot",
       "utils/kernel-service:frontend_server_aot_product",
     ]
-    if (is_linux) {
+    if (is_linux || current_os == "freebsd") {
       deps += [
         "runtime/bin:dartcliruntime",
         "runtime/bin:dartcliruntime_product",
@@ -68,8 +68,8 @@ group("runtime") {
   }
 
   # AOT samples use dlopen to load AOT snapshots and it works only on
-  # 64-bit Linux right now.
-  if ((is_linux || is_mac) &&
+  # 64-bit Linux, FreeBSD and macOS right now.
+  if ((is_linux || is_mac || current_os == "freebsd") &&
       (dart_target_arch == "x64" || dart_target_arch == "arm64")) {
     deps += [ "samples/embedder:aot" ]
   }
@@ -120,7 +120,7 @@ group("runtime_precompiled") {
     "runtime/bin:process_test",
     "runtime/vm:kernel_platform_files($host_toolchain)",
   ]
-  if (is_linux) {
+  if (is_linux || current_os == "freebsd") {
     deps += [ "runtime/bin:dartcliruntime" ]
   }
   if (is_linux || is_android) {

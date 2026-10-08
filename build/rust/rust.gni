@@ -27,6 +27,8 @@ template("rust_library") {
   cargo_out_dir = target_out_dir
   if (is_linux) {
     rust_os = "unknown-linux-gnu"
+  } else if (current_os == "freebsd") {
+    rust_os = "unknown-freebsd"
   } else if (is_mac) {
     rust_os = "apple-darwin"
   } else if (is_win) {

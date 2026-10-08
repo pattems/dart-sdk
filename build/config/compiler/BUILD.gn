@@ -302,9 +302,9 @@ config("compiler") {
     }
   }
 
-  # Linux/Android common flags setup.
-  # ---------------------------------
-  if (is_linux || is_android) {
+  # Linux/Android/FreeBSD common flags setup.
+  # -----------------------------------------
+  if (is_linux || is_android || current_os == "freebsd") {
     ldflags += [
       "-Wl,-z,noexecstack",
       "-Wl,-z,now",
@@ -313,7 +313,8 @@ config("compiler") {
     ]
   }
 
-  if (is_android || is_linux || is_mac || is_ios || is_fuchsia) {
+  if (is_android || is_linux || is_mac || is_ios || is_fuchsia ||
+      current_os == "freebsd") {
     if (is_shared_library) {
       cflags += [ "-fPIC" ]
       ldflags += [ "-fPIC" ]
@@ -373,7 +374,19 @@ config("compiler") {
     }
   }
 
-  if (is_linux && enable_cfi) {
+  # FreeBSD-specific compiler flags setup.
+  # --------------------------------------
+  if (current_os == "freebsd" && is_clang) {
+    if (current_cpu == "arm64") {
+      cflags += [ "--target=aarch64-unknown-freebsd" ]
+      ldflags += [ "--target=aarch64-unknown-freebsd" ]
+    } else if (current_cpu == "x64") {
+      cflags += [ "--target=x86_64-unknown-freebsd" ]
+      ldflags += [ "--target=x86_64-unknown-freebsd" ]
+    }
+  }
+
+  if ((is_linux || current_os == "freebsd") && enable_cfi) {
     if (current_cpu == "x64") {
       cflags += [ "-fcf-protection=full" ]
       ldflags += [ "-Wl,-z,cet-report=warning" ]
@@ -617,7 +630,7 @@ config("runtime_library") {
     ]
   }
 
-  if (is_linux) {
+  if (is_linux || current_os == "freebsd") {
     libs += [
       "dl",
       "pthread",

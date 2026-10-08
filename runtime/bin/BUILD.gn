@@ -1035,7 +1035,7 @@ dart_executable("dartaotruntime_product") {
   ]
 }
 
-if (is_linux) {
+if (is_linux || current_os == "freebsd") {
   dart_executable("dartcliruntime") {
     extra_configs = [
       "..:dart_aotruntime_config",

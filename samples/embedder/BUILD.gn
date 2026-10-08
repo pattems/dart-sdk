@@ -103,7 +103,7 @@ template("sample") {
       ]
 
       # Otherwise build with --no-clang (jit) or MSAN (aot) fails.
-      if (is_linux) {
+      if (is_linux || current_os == "freebsd") {
         if (!defined(ldflags)) {
           ldflags = []
         }
@@ -143,7 +143,7 @@ template("sample") {
       ]
 
       # Otherwise build with --no-clang (jit) or MSAN (aot) fails.
-      if (is_linux) {
+      if (is_linux || current_os == "freebsd") {
         if (!defined(ldflags)) {
           ldflags = []
         }

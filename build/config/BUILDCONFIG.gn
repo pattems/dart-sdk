@@ -117,7 +117,8 @@ declare_args() {
 
   # Set to true when compiling with the Clang compiler. Typically this is used
   # to configure warnings.
-  is_clang = current_os == "mac" || current_os == "linux"
+  is_clang =
+      current_os == "mac" || current_os == "linux" || current_os == "freebsd"
 
   # Compile for Address Sanitizer to find memory bugs.
   is_asan = false
@@ -213,6 +214,19 @@ if (current_os == "win") {
   is_posix = true
   is_watchos = false
   is_win = false
+} else if (current_os == "freebsd") {
+  # FreeBSD has no is_* variable of its own (see above). Check
+  # current_os == "freebsd" where it needs Linux-like build settings.
+  is_android = false
+  is_chromeos = false
+  is_fuchsia = false
+  is_ios = false
+  is_linux = false
+  is_mac = false
+  is_nacl = false
+  is_posix = true
+  is_watchos = false
+  is_win = false
 } else if (current_os == "fuchsia") {
   is_android = false
   is_chromeos = false
@@ -251,6 +265,12 @@ if (current_os == "win") {
   is_posix = true
   is_watchos = true
   is_win = false
+} else if (current_os == "netbsd" || current_os == "openbsd" ||
+           current_os == "dragonfly") {
+  # The *_bsd sources only support FreeBSD so far; see the matching #error
+  # in runtime/platform/globals.h. (gn itself reports DragonFly as "freebsd",
+  # so there the #error is what stops the build.)
+  assert(false, "$current_os is not supported yet. Only FreeBSD is.")
 }
 
 # =============================================================================
@@ -327,7 +347,7 @@ if (is_fuchsia) {
   ]
 }
 
-if (is_linux) {
+if (is_linux || current_os == "freebsd") {
   _native_compiler_configs += [ "//build/config/linux:sdk" ]
 } else if (is_mac) {
   _native_compiler_configs += [ "//build/config/mac:sdk" ]
@@ -384,7 +404,7 @@ if (is_win) {
     "//build/config/mac:mac_dynamic_flags",
     "//build/config/mac:mac_executable_flags",
   ]
-} else if (is_linux) {
+} else if (is_linux || current_os == "freebsd") {
   _executable_configs += [
     "//build/config/gcc:executable_ldconfig",
     "//build/config/linux:executable_config",
@@ -461,7 +481,9 @@ if (is_win) {
   } else {
     set_default_toolchain("//build/toolchain/android:$current_cpu")
   }
-} else if (is_linux) {
+} else if (is_linux || current_os == "freebsd") {
+  # The Linux toolchains also build for FreeBSD, see
+  # //build/toolchain/linux/BUILD.gn.
   if (is_clang) {
     host_toolchain = "//build/toolchain/linux:clang_$host_cpu"
     set_default_toolchain("//build/toolchain/linux:clang_$current_cpu")

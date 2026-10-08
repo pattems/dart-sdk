@@ -110,10 +110,22 @@
 // Check for Android first, to determine its difference from Linux.
 #define DART_HOST_OS_ANDROID 1
 
-#elif defined(__linux__) || defined(__FreeBSD__)
+#elif defined(__linux__)
 
 // Generic Linux.
 #define DART_HOST_OS_LINUX 1
+
+#elif defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+
+// Checked before __FreeBSD__, which DragonFly's toolchain can also define.
+#error This BSD is not supported yet. The *_bsd files only support FreeBSD.
+
+#elif defined(__FreeBSD__)
+
+// FreeBSD. DART_HOST_OS_BSD selects the *_bsd files, which are meant to be
+// shared by the BSDs; DART_HOST_OS_FREEBSD guards what is FreeBSD specific.
+#define DART_HOST_OS_BSD 1
+#define DART_HOST_OS_FREEBSD 1
 
 #elif defined(__APPLE__)
 
@@ -421,7 +433,8 @@ struct simd128_value_t {
 
 #if !defined(DART_TARGET_OS_ANDROID) && !defined(DART_TARGET_OS_FUCHSIA) &&    \
     !defined(DART_TARGET_OS_MACOS_IOS) && !defined(DART_TARGET_OS_LINUX) &&    \
-    !defined(DART_TARGET_OS_MACOS) && !defined(DART_TARGET_OS_WINDOWS)
+    !defined(DART_TARGET_OS_MACOS) && !defined(DART_TARGET_OS_WINDOWS) &&      \
+    !defined(DART_TARGET_OS_FREEBSD)
 // No target OS specified; pick the one matching the host OS.
 #if defined(DART_HOST_OS_ANDROID)
 #define DART_TARGET_OS_ANDROID 1
@@ -432,6 +445,8 @@ struct simd128_value_t {
 #define DART_TARGET_OS_MACOS_IOS 1
 #elif defined(DART_HOST_OS_LINUX)
 #define DART_TARGET_OS_LINUX 1
+#elif defined(DART_HOST_OS_FREEBSD)
+#define DART_TARGET_OS_FREEBSD 1
 #elif defined(DART_HOST_OS_MACOS)
 #define DART_TARGET_OS_MACOS 1
 #elif defined(DART_HOST_OS_WINDOWS)
@@ -716,6 +731,10 @@ DART_FORCE_INLINE D bit_copy(const S& source) {
 #define kHostOperatingSystemName "ios"
 #elif defined(DART_HOST_OS_LINUX)
 #define kHostOperatingSystemName "linux"
+#elif defined(DART_HOST_OS_FREEBSD)
+// Platform.operatingSystem reports FreeBSD as "linux", so existing
+// Platform.isLinux checks keep working.
+#define kHostOperatingSystemName "linux"
 #elif defined(DART_HOST_OS_MACOS)
 #define kHostOperatingSystemName "macos"
 #elif defined(DART_HOST_OS_WINDOWS)
@@ -767,6 +786,10 @@ DART_FORCE_INLINE D bit_copy(const S& source) {
 #elif defined(DART_TARGET_OS_FUCHSIA)
 #define kTargetOperatingSystemName "fuchsia"
 #elif defined(DART_TARGET_OS_LINUX)
+#define kTargetOperatingSystemName "linux"
+#elif defined(DART_TARGET_OS_FREEBSD)
+// FreeBSD uses the Linux calling conventions, and dart:ffi's Abi and native
+// assets name it as Linux.
 #define kTargetOperatingSystemName "linux"
 #elif defined(DART_TARGET_OS_MACOS_IOS)
 #define kTargetOperatingSystemName "ios"
