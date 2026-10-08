@@ -241,7 +241,10 @@ static bool IsTemporaryAcceptError(int error) {
   // On Linux a number of protocol errors should be treated as EAGAIN.
   // These are the ones for TCP/IP.
   return (error == EAGAIN) || (error == ENETDOWN) || (error == EPROTO) ||
-         (error == ENOPROTOOPT) || (error == EHOSTDOWN) || (error == ENONET) ||
+         (error == ENOPROTOOPT) || (error == EHOSTDOWN) ||
+#if defined(ENONET)  // Not defined on FreeBSD.
+         (error == ENONET) ||
+#endif
          (error == EHOSTUNREACH) || (error == EOPNOTSUPP) ||
          (error == ENETUNREACH);
 }
