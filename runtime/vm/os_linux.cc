@@ -22,6 +22,10 @@
 #include <time.h>          // NOLINT
 #include <unistd.h>        // NOLINT
 
+#if defined(__FreeBSD__)
+#include <pthread_np.h>  // NOLINT
+#endif
+
 #include "platform/largefile.h"
 #include "platform/memory_sanitizer.h"
 #include "platform/signal_blocker.h"
@@ -227,7 +231,11 @@ class JitDumpCodeObserver : public CodeObserver {
     ev.size = sizeof(ev) + (name_length + 1) + size;
     ev.time_stamp = OS::GetCurrentMonotonicTicks();
     ev.process_id = getpid();
+#if defined(__FreeBSD__)
+    ev.thread_id = pthread_getthreadid_np();
+#else
     ev.thread_id = syscall(SYS_gettid);
+#endif
     ev.vma = base;
     ev.code_address = base;
     ev.code_size = size;
