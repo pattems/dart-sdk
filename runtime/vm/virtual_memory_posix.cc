@@ -15,8 +15,14 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#if defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX)
+#if (defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX)) &&          \
+    !defined(__FreeBSD__)
 #include <sys/prctl.h>
+#endif
+
+// FreeBSD removed MAP_NORESERVE; reservations do not commit swap there.
+#if !defined(MAP_NORESERVE)
+#define MAP_NORESERVE 0
 #endif
 
 #if defined(DART_HOST_OS_MACOS)
@@ -691,7 +697,8 @@ VirtualMemory* VirtualMemory::AllocateAligned(intptr_t size,
   }
 #endif  // defined(DART_ENABLE_RX_WORKAROUNDS)
 
-#if defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX)
+#if (defined(DART_HOST_OS_ANDROID) || defined(DART_HOST_OS_LINUX)) &&          \
+    !defined(__FreeBSD__)
   // PR_SET_VMA was only added to mainline Linux in 5.17, and some versions of
   // the Android NDK have incorrect headers, so we manually define it if absent.
 #if !defined(PR_SET_VMA)

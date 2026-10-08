@@ -45,11 +45,14 @@
 namespace dart {
 
 // Used to choose between Elf32/Elf64 types based on host archotecture bitsize.
+// Some C libraries (e.g. FreeBSD's) already provide it.
+#if !defined(ElfW)
 #if defined(ARCH_IS_64_BIT)
 #define ElfW(Type) Elf64_##Type
 #else
 #define ElfW(Type) Elf32_##Type
 #endif
+#endif  // !defined(ElfW)
 
 // Missing from older versions of <elf.h>.
 #if !defined(EM_RISCV)
