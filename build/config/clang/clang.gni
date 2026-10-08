@@ -10,9 +10,16 @@ if (_toolchain_cpu == "arm64e") {
   _toolchain_cpu = "arm64"
 }
 
-default_clang_prefix =
-    rebase_path("//buildtools/${host_os}-${_toolchain_cpu}/clang/bin",
-                root_build_dir)
+if (host_os == "freebsd") {
+  # There is no prebuilt clang for FreeBSD in buildtools. The base system
+  # provides clang and the llvm-* tools in /usr/bin; a newer toolchain from
+  # ports can be selected with e.g. clang_prefix = "/usr/local/llvm21/bin".
+  default_clang_prefix = "/usr/bin"
+} else {
+  default_clang_prefix =
+      rebase_path("//buildtools/${host_os}-${_toolchain_cpu}/clang/bin",
+                  root_build_dir)
+}
 
 declare_args() {
   clang_prefix = default_clang_prefix
