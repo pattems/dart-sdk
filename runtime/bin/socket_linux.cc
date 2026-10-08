@@ -132,6 +132,12 @@ intptr_t Socket::CreateBindDatagram(const RawAddr& addr,
     int optval = 1;
     VOID_NO_RETRY_EXPECTED(
         setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)));
+#if defined(__FreeBSD__)
+    // On Linux, SO_REUSEADDR lets several UDP sockets bind the same address
+    // and port. On FreeBSD that needs SO_REUSEPORT as well.
+    VOID_NO_RETRY_EXPECTED(
+        setsockopt(fd, SOL_SOCKET, SO_REUSEPORT, &optval, sizeof(optval)));
+#endif
   }
 
   if (reusePort) {
