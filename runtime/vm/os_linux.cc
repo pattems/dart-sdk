@@ -24,6 +24,8 @@
 
 #if defined(__FreeBSD__)
 #include <pthread_np.h>  // NOLINT
+#include <sys/sysctl.h>  // NOLINT
+#include <sys/user.h>    // NOLINT
 #endif
 
 #include "platform/largefile.h"
@@ -553,6 +555,17 @@ intptr_t OS::ActivationFrameAlignment() {
 }
 
 uintptr_t OS::CurrentRSS() {
+#if defined(__FreeBSD__)
+  // FreeBSD does not mount procfs by default; ask the kernel instead.
+  struct kinfo_proc info;
+  size_t size = sizeof(info);
+  int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()};
+  if (sysctl(mib, sizeof(mib) / sizeof(mib[0]), &info, &size, nullptr, 0) !=
+      0) {
+    return 0;
+  }
+  return static_cast<uintptr_t>(info.ki_rssize) * getpagesize();
+#else
   // The second value in /proc/self/statm is the current RSS in pages.
   // It is not possible to use getrusage() because the interested fields are not
   // implemented by the linux kernel.
@@ -567,6 +580,7 @@ uintptr_t OS::CurrentRSS() {
     return 0;
   }
   return current_rss_pages * getpagesize();
+#endif
 }
 
 bool OS::SafeReadMemory(void* address,

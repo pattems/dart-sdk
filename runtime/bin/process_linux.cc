@@ -17,6 +17,11 @@
 #include <sys/wait.h>      // NOLINT
 #include <unistd.h>        // NOLINT
 
+#if defined(__FreeBSD__)
+#include <sys/sysctl.h>  // NOLINT
+#include <sys/user.h>    // NOLINT
+#endif
+
 #include "bin/dartutils.h"
 #include "bin/directory.h"
 #include "bin/fdutils.h"
@@ -269,6 +274,17 @@ static bool PathInNamespace(char* realpath,
   if (fd == -1) {
     return false;
   }
+#if defined(__FreeBSD__)
+  // No /proc/self/fd on FreeBSD; F_KINFO reports the path of an open file.
+  struct kinfo_file info = {};
+  info.kf_structsize = sizeof(info);
+  if (fcntl(fd, F_KINFO, &info) != 0) {
+    FDUtils::SaveErrorAndClose(fd);
+    return false;
+  }
+  strncpy(realpath, info.kf_path, realpath_size);
+  realpath[realpath_size - 1] = '\0';
+#else
   char procpath[PATH_MAX];
   snprintf(procpath, PATH_MAX, "/proc/self/fd/%d", fd);
   const intptr_t length =
@@ -278,6 +294,7 @@ static bool PathInNamespace(char* realpath,
     return false;
   }
   realpath[length] = '\0';
+#endif
   FDUtils::SaveErrorAndClose(fd);
   return true;
 }
@@ -995,13 +1012,25 @@ intptr_t Process::CurrentProcessId() {
   return static_cast<intptr_t>(getpid());
 }
 
+#if !defined(__FreeBSD__)
 static void SaveErrorAndClose(FILE* file) {
   int actual_errno = errno;
   fclose(file);
   errno = actual_errno;
 }
+#endif
 
 int64_t Process::CurrentRSS() {
+#if defined(__FreeBSD__)
+  struct kinfo_proc info;
+  size_t size = sizeof(info);
+  int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()};
+  if (sysctl(mib, sizeof(mib) / sizeof(mib[0]), &info, &size, nullptr, 0) !=
+      0) {
+    return -1;
+  }
+  return static_cast<int64_t>(info.ki_rssize) * getpagesize();
+#else
   // The second value in /proc/self/statm is the current RSS in pages.
   // It is not possible to use getrusage() because the interested fields are not
   // implemented by the linux kernel.
@@ -1017,6 +1046,7 @@ int64_t Process::CurrentRSS() {
   }
   fclose(statm);
   return current_rss_pages * getpagesize();
+#endif
 }
 
 int64_t Process::MaxRSS() {

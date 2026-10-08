@@ -19,11 +19,13 @@
 
 #if defined(__FreeBSD__)
 #include <pthread_np.h>
+#include <sys/sysctl.h>
 #else
 #include <sys/prctl.h>
 #endif
 
 #include "bin/console.h"
+#include "bin/dartutils.h"
 #include "bin/file.h"
 
 #if defined(__FreeBSD__)
@@ -197,12 +199,42 @@ const char* Platform::GetExecutableName() {
   return executable_name_;
 }
 
+#if defined(__FreeBSD__)
+// FreeBSD does not mount procfs by default, so there is no /proc/self/exe.
+// Ask the kernel for the executable's path instead. Like File::ReadLinkInto,
+// returns the length including the terminating NUL, or -1 on failure.
+static intptr_t GetExecutablePathInto(char* result, size_t result_size) {
+  int mib[] = {CTL_KERN, KERN_PROC, KERN_PROC_PATHNAME, -1};
+  size_t length = result_size;
+  if (sysctl(mib, sizeof(mib) / sizeof(mib[0]), result, &length, nullptr, 0) !=
+      0) {
+    return -1;
+  }
+  return length;
+}
+#endif  // defined(__FreeBSD__)
+
 const char* Platform::ResolveExecutablePath() {
+#if defined(__FreeBSD__)
+  char path[PATH_MAX + 1];
+  const intptr_t length = GetExecutablePathInto(path, sizeof(path));
+  if (length <= 0) {
+    return nullptr;
+  }
+  char* result = DartUtils::ScopedCString(length);
+  memmove(result, path, length);
+  return result;
+#else
   return File::ReadLink("/proc/self/exe");
+#endif
 }
 
 intptr_t Platform::ResolveExecutablePathInto(char* result, size_t result_size) {
+#if defined(__FreeBSD__)
+  return GetExecutablePathInto(result, result_size);
+#else
   return File::ReadLinkInto("/proc/self/exe", result, result_size);
+#endif
 }
 
 void Platform::SetProcessName(const char* name) {
