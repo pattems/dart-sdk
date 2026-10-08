@@ -10,7 +10,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <string.h>
-#include <sys/prctl.h>
 #include <sys/resource.h>
 #if defined(DART_HOST_OS_ANDROID)
 #include <sys/system_properties.h>
@@ -18,8 +17,18 @@
 #include <sys/utsname.h>
 #include <unistd.h>
 
+#if defined(__FreeBSD__)
+#include <pthread_np.h>
+#else
+#include <sys/prctl.h>
+#endif
+
 #include "bin/console.h"
 #include "bin/file.h"
+
+#if defined(__FreeBSD__)
+extern char** environ;
+#endif
 
 namespace dart {
 namespace bin {
@@ -45,8 +54,10 @@ static const char* strcode(int si_signo, int si_code) {
   CASE(SIGBUS, BUS_ADRALN);
   CASE(SIGBUS, BUS_ADRERR);
   CASE(SIGBUS, BUS_OBJERR);
+#if defined(BUS_MCEERR_AR)  // Linux-specific machine check codes.
   CASE(SIGBUS, BUS_MCEERR_AR);
   CASE(SIGBUS, BUS_MCEERR_AO);
+#endif
   CASE(SIGTRAP, TRAP_BRKPT);
   CASE(SIGTRAP, TRAP_TRACE);
 #undef CASE
@@ -195,7 +206,12 @@ intptr_t Platform::ResolveExecutablePathInto(char* result, size_t result_size) {
 }
 
 void Platform::SetProcessName(const char* name) {
+#if defined(__FreeBSD__)
+  // Like PR_SET_NAME, this names the calling thread.
+  pthread_setname_np(pthread_self(), name);
+#else
   prctl(PR_SET_NAME, reinterpret_cast<unsigned long>(name), 0, 0, 0);  // NOLINT
+#endif
 }
 
 void Platform::Exit(int exit_code) {
