@@ -4,6 +4,10 @@
 
 #include "bin/exe_utils.h"
 
+#if defined(__FreeBSD__)
+#include <dlfcn.h>
+#endif
+
 #include "bin/directory.h"
 #include "bin/file.h"
 #include "bin/platform.h"
@@ -141,7 +145,19 @@ void EXEUtils::LoadDartProfilerSymbols(const char* argv0) {
 
   int64_t size = file->Length();
   MappedMemory* mapping = file->Map(File::kReadOnly, 0, size);
-  Dart_AddSymbols(argv0, mapping->address(), size);
+  const char* dso_name = argv0;
+#if defined(__FreeBSD__)
+  // The symbols are looked up by the name dladdr() reports for the
+  // executable. That is argv[0] with glibc, but FreeBSD reports the resolved
+  // path, so register them under that name.
+  Dl_info info;
+  if (dladdr(reinterpret_cast<void*>(&EXEUtils::LoadDartProfilerSymbols),
+             &info) != 0 &&
+      info.dli_fname != nullptr) {
+    dso_name = info.dli_fname;
+  }
+#endif
+  Dart_AddSymbols(dso_name, mapping->address(), size);
   mapping->Leak();  // Let us delete the object but keep the mapping.
   delete mapping;
   file->Release();
