@@ -11,11 +11,14 @@
 #include <fcntl.h>         // NOLINT
 #include <libgen.h>        // NOLINT
 #include <sys/mman.h>      // NOLINT
-#include <sys/sendfile.h>  // NOLINT
 #include <sys/stat.h>      // NOLINT
 #include <sys/types.h>     // NOLINT
 #include <unistd.h>        // NOLINT
 #include <utime.h>         // NOLINT
+
+#if !defined(__FreeBSD__)
+#include <sys/sendfile.h>  // NOLINT
+#endif
 
 #include "bin/builtin.h"
 #include "bin/fdutils.h"
@@ -529,9 +532,17 @@ bool File::Copy(Namespace* namespc,
   intptr_t result = 1;
   while (result > 0) {
     // Loop to ensure we copy everything, and not only up to 2GB.
+#if defined(__FreeBSD__)
+    // FreeBSD's sendfile() only writes to sockets.
+    off_t in_offset = offset;
+    result = TEMP_FAILURE_RETRY(
+        copy_file_range(old_fd, &in_offset, new_fd, nullptr, kMaxUint32, 0));
+    offset = in_offset;
+#else
     // sendfile64 can fail with EINTR if no data was written yet.
     result =
         TEMP_FAILURE_RETRY(sendfile64(new_fd, old_fd, &offset, kMaxUint32));
+#endif
   }
   // From sendfile man pages:
   //   Applications may wish to fall back to read(2)/write(2) in the case
