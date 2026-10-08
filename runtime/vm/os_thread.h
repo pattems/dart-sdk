@@ -24,6 +24,8 @@
 #include "vm/os_thread_fuchsia.h"
 #elif defined(DART_HOST_OS_LINUX)
 #include "vm/os_thread_linux.h"
+#elif defined(DART_HOST_OS_BSD)
+#include "vm/os_thread_bsd.h"
 #elif defined(DART_HOST_OS_MACOS)
 #include "vm/os_thread_macos.h"
 #elif defined(DART_HOST_OS_WINDOWS)

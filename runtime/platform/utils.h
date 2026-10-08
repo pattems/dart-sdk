@@ -608,6 +608,8 @@ class Utils {
 #include "platform/utils_fuchsia.h"
 #elif defined(DART_HOST_OS_LINUX)
 #include "platform/utils_linux.h"
+#elif defined(DART_HOST_OS_BSD)
+#include "platform/utils_bsd.h"
 #elif defined(DART_HOST_OS_MACOS)
 #include "platform/utils_macos.h"
 #elif defined(DART_HOST_OS_WINDOWS)
