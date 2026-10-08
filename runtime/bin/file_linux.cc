@@ -10,6 +10,7 @@
 #include <errno.h>         // NOLINT
 #include <fcntl.h>         // NOLINT
 #include <libgen.h>        // NOLINT
+#include <stdio.h>         // NOLINT
 #include <sys/mman.h>      // NOLINT
 #include <sys/sendfile.h>  // NOLINT
 #include <sys/stat.h>      // NOLINT
@@ -399,6 +400,35 @@ bool File::CreatePipe(Namespace* namespc, File** readPipe, File** writePipe) {
   return true;
 }
 
+#if defined(__FreeBSD__)
+// On FreeBSD, /dev/fd/N (from devfs or fdescfs) is a character device, while
+// on Linux and macOS following it reaches the open file itself, e.g. a pipe.
+// Stat the descriptor for such paths to get the same result.
+static bool StatDevFd(const char* path, struct stat64* st, int* result) {
+  int fd;
+  char trailing;
+  if (sscanf(path, "/dev/fd/%d%c", &fd, &trailing) != 1 || fd < 0) {
+    return false;
+  }
+  *result = TEMP_FAILURE_RETRY(fstat64_fixed(fd, st));
+  return true;
+}
+#endif  // defined(__FreeBSD__)
+
+// Like fstatat64(dirfd, path, st, 0), following /dev/fd/N on FreeBSD.
+static int StatFollowingLinks(const char* name,
+                              int dirfd,
+                              const char* path,
+                              struct stat64* st) {
+#if defined(__FreeBSD__)
+  int result;
+  if (StatDevFd(name, st, &result)) {
+    return result;
+  }
+#endif
+  return TEMP_FAILURE_RETRY(fstatat64_fixed(dirfd, path, st, 0));
+}
+
 File::Type File::GetType(Namespace* namespc,
                          const char* name,
                          bool follow_links) {
@@ -406,8 +436,7 @@ File::Type File::GetType(Namespace* namespc,
   struct stat64 entry_info;
   int stat_success;
   if (follow_links) {
-    stat_success =
-        TEMP_FAILURE_RETRY(fstatat64_fixed(ns.fd(), ns.path(), &entry_info, 0));
+    stat_success = StatFollowingLinks(name, ns.fd(), ns.path(), &entry_info);
   } else {
     stat_success = TEMP_FAILURE_RETRY(
         fstatat64_fixed(ns.fd(), ns.path(), &entry_info, AT_SYMLINK_NOFOLLOW));
@@ -509,8 +538,7 @@ bool File::Copy(Namespace* namespc,
   }
   NamespaceScope oldns(namespc, old_path);
   struct stat64 st;
-  if (TEMP_FAILURE_RETRY(fstatat64_fixed(oldns.fd(), oldns.path(), &st, 0)) !=
-      0) {
+  if (StatFollowingLinks(old_path, oldns.fd(), oldns.path(), &st) != 0) {
     return false;
   }
   const int old_fd = TEMP_FAILURE_RETRY(
@@ -602,7 +630,7 @@ static void MicrosecondsToTimespec(int64_t micros, struct timespec* t) {
 void File::Stat(Namespace* namespc, const char* name, int64_t* data) {
   NamespaceScope ns(namespc, name);
   struct stat64 st;
-  if (TEMP_FAILURE_RETRY(fstatat64_fixed(ns.fd(), ns.path(), &st, 0)) == 0) {
+  if (StatFollowingLinks(name, ns.fd(), ns.path(), &st) == 0) {
     if (S_ISREG(st.st_mode)) {
       data[kType] = kIsFile;
     } else if (S_ISDIR(st.st_mode)) {
