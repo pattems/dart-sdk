@@ -93,6 +93,11 @@ dwarf_stack_trace_test: SkipByDesign # Due to instruction canonicalization we ca
 [ $runtime == vm && $system == linux ]
 io/http_basic_test: Slow, Pass # Issue 28046, These tests might be slow on an opt counter threshold bot. They also time out on the bot occasionally => flaky test issue 28046
 
+[ $system == freebsd ]
+io/raw_datagram_socket_test: Skip # Sends 64 KB datagrams; FreeBSD's default net.inet.udp.maxdgram is 9216 bytes.
+io/regress_21987_test: SkipByDesign # Reads /proc/self/exe; FreeBSD doesn't mount procfs by default.
+io/unix_socket_test: SkipByDesign # Uses Linux's abstract socket namespace (@name).
+
 [ $system == macos && ($runtime == dart_precompiled || $runtime == vm) ]
 io/socket_many_connections_test: Skip # This test fails with "Too many open files" on the Mac OS buildbot. This is expected as MacOS by default runs with a very low number of allowed open files ('ulimit -n' says something like 256).
 

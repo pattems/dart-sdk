@@ -227,6 +227,10 @@ dart/tsan/*: SkipByDesign
 dart/isolates/dart_api_create_lightweight_isolate_test: SkipByDesign # On android this test does not work due to not being able to identify library uri.
 dart/sdk_hash_test: SkipByDesign # The test doesn't know location of cross-platform gen_snapshot
 
+[ $system == freebsd ]
+dart/exported_symbols_test: SkipByDesign # FreeBSD links the system libc++ dynamically, so its typeinfo and the crt symbols are exported too.
+dart/stream_timeline_to_test: SkipByDesign # Built without Perfetto: the pinned Perfetto doesn't support FreeBSD.
+
 [ $system == fuchsia ]
 cc/CorelibIsolateStartup: Skip # OOM crash can bring down the OS.
 cc/Read: Fail # TODO(zra): Investigate, ../../dart/runtime/bin/file_test.cc: 34: error: expected: !file->WriteByte(1)
@@ -490,5 +494,5 @@ dart/thread_priority_linux_test: SkipByDesign
 
 # The analyze_snapshot tool tests are only supported on 64 bit AOT builds running under
 # release or product runtimes for linux and android platforms
-[ $arch != arm64 && $arch != arm64c && $arch != simarm64 && $arch != simarm64c && $arch != x64 && $arch != x64c || $compiler != dartk && $compiler != dartkp || $mode != product && $mode != release || $runtime != dart_precompiled && $runtime != vm || $system != android && $system != linux && $system != macos ]
+[ $arch != arm64 && $arch != arm64c && $arch != simarm64 && $arch != simarm64c && $arch != x64 && $arch != x64c || $compiler != dartk && $compiler != dartkp || $mode != product && $mode != release || $runtime != dart_precompiled && $runtime != vm || $system != android && $system != freebsd && $system != linux && $system != macos ]
 dart/analyze_snapshot_binary_test: SkipByDesign # Only run on 64bit AOT on standard architectures

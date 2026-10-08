@@ -699,7 +699,7 @@ ArgParser _createParser({required bool verbose}) => ArgParser()
     'system',
     abbr: 's',
     allowed: ['all', ...System.names],
-    defaultsTo: Platform.operatingSystem,
+    defaultsTo: System.host.name,
     hide: !verbose,
     help: 'The operating system to run tests on.',
   )

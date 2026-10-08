@@ -1759,6 +1759,7 @@ abstract mixin class VMKernelCompilerMixin {
     if (_configuration.genSnapshotFormat == GenSnapshotFormat.assembly) {
       switch (_configuration.system) {
         case System.android:
+        case System.freebsd:
         case System.fuchsia:
         case System.linux:
           return Path('$tempDir/libout.so').toNativePath();
