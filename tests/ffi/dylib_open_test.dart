@@ -25,10 +25,15 @@ void testDoesNotExist() {
     );
     Expect.contains('(error code: 126)', exception.message);
   } else if (Platform.isLinux) {
-    Expect.contains(
-      'cannot open shared object file: No such file or directory',
-      exception.message,
-    );
+    // The wording depends on the C library: glibc says "cannot open shared
+    // object file: No such file or directory", musl "Error loading shared
+    // library ...: No such file or directory", FreeBSD's rtld "Shared
+    // object ... not found".
+    Expect.contains('libdoesnotexist1234.so', exception.message);
+    Expect.containsAny([
+      'No such file or directory',
+      'not found',
+    ], exception.message);
   } else if (Platform.isMacOS) {
     Expect.contains('libdoesnotexist1234.dylib', exception.message);
     Expect.containsAny(['no such file', 'image not found'], exception.message);
