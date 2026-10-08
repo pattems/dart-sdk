@@ -1007,7 +1007,7 @@ def FileDescriptorLimitIncreaser():
     if osname == 'macos':
         return IncreasedNumberOfFileDescriptors(nofiles=10000)
 
-    assert osname in ('linux', 'win32')
+    assert osname in ('linux', 'freebsd', 'win32')
     # We don't have support for MacOS yet.
     return NooptContextManager()
 
